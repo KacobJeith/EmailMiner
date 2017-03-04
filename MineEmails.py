@@ -19,7 +19,7 @@ def scrapeQuery(url):
 
 def scrapeBuilderPage(url):
 	# Goal is to find the builder website
-	print 'Scraping Builder Houzz Page' + url
+	print 'Scraping Builder Houzz Page: ' + url
 
 	htmltext = urllib.urlopen(url).read()
 	soup = BeautifulSoup(htmltext, "html.parser")
@@ -53,7 +53,7 @@ def scrapeBuilderWebsite(website):
 				# Search for top level emails
 				scrapeForEmail(sublink)
 
-		elif str(link['href']).find('contact') > -1:
+		if str(link['href']).find('contact') > -1:
 			print 'Scraping SubDirectory: ' + website + '/' + link['href']
 			htmltext = urllib.urlopen(website + '/' + link['href']).read()
 			soup = BeautifulSoup(htmltext, "html.parser")
@@ -61,6 +61,7 @@ def scrapeBuilderWebsite(website):
 			for sublink in soup.find_all('a',href=True) :
 				# Search for top level emails
 				scrapeForEmail(sublink)
+
 		elif str(link['href']).find('about') > -1:
 			print 'Scraping SubDirectory: ' + website + '/' + link['href']
 			htmltext = urllib.urlopen(website + '/' + link['href']).read()
@@ -69,6 +70,7 @@ def scrapeBuilderWebsite(website):
 			for sublink in soup.find_all('a',href=True) :
 				# Search for top level emails
 				scrapeForEmail(sublink)
+
 		elif str(link['href']).find('team') > -1:
 			print 'Scraping SubDirectory: ' + website + '/' + link['href']
 			htmltext = urllib.urlopen(website + '/' + link['href']).read()
@@ -90,15 +92,18 @@ def scrapeForEmail(link) :
 	return
 
 
-url = "http://www.houzz.com/professionals/home-builders/c/Gatlinburg--TN/p/"
-numPages = 2
+url = "http://www.houzz.com/professionals/design-build/c/"
+city = "San Francisco"
+state = "CA"
+numPages = 20
+
 urls = []
 websites = []
 emails = []
 currentPage = 1
 
 while currentPage <= numPages :
-	currentUrl = url + str(currentPage * 15 - 15)
+	currentUrl = url + city + '--' + state + '/p/' + str(currentPage * 15 - 15)
 	scrapeQuery(currentUrl)
 	currentPage += 1
 
@@ -111,6 +116,8 @@ for website in websites :
 	except :
 		continue
 
-
-for e in list(set(emails)) :
-	print str(e)
+cleaned = list(set(emails))
+with open(city + '--' + state + '.csv', 'wb') as csvfile:
+	for e in cleaned :
+		csvfile.write(str(e) + ',\n')
+		print str(e)
