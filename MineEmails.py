@@ -1,4 +1,5 @@
 from __future__ import division
+import sys
 import urlparse
 import urllib
 import json
@@ -109,9 +110,9 @@ def scrapeForEmail(link) :
 
 
 url = "http://www.houzz.com/professionals/design-build/c/"
-city = "San Francisco"
-state = "CA"
-numPages = 1
+city = sys.argv[1]
+state = sys.argv[2]
+numPages = int(sys.argv[3])
 
 urls = []
 websites = []
