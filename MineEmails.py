@@ -1,4 +1,5 @@
 from __future__ import division
+import os
 import sys
 import urlparse
 import urllib
@@ -37,7 +38,6 @@ def scrapeBuilderWebsite(website):
 
 	hits = 0
 	print 'Scraping: ' + website
-
 
 	htmltext = urllib.urlopen(website).read()
 	soup = BeautifulSoup(htmltext, "html.parser")
@@ -91,7 +91,7 @@ def scrapeBuilderWebsite(website):
 				# Search for top level emails
 				hits += scrapeForEmail(sublink)
 
-	if foundEmail :
+	if hits > 0 :
 		stats['websitesWithEmails'] += 1
 
 	return
@@ -143,12 +143,16 @@ for website in websites :
 cleaned = list(set(emails))
 stats['emails'] = len(cleaned)
 
-with open(city + '--' + state + '.csv', 'wb') as csvfile:
+if os.path.isdir(os.path.join(os.getcwd(), 'results')) == False:
+	os.makedirs(os.path.join(os.getcwd(), 'results'))
+path = os.path.join(os.getcwd(), 'results', city + '--' + state + '.csv')
+with open(path, 'wb') as csvfile:
 	for e in cleaned :
-		csvfile.write(str(e) + ',\n')
+		csvfile.write(str(e).strip() + ',\n')
 		print str(e)
 
 print ':::::Scanning Complete:::::'
+print 'Results stored at: '+ path
 print 'Expected Number Houzz Profiles: ' + str(stats['expectedProfiles'])
 print 'Discovered Number Houzz Profiles: ' + str(stats['profiles'])
 print 'Profile Discovery Rate: ' + str(stats['profiles'] / stats['expectedProfiles'] * 100) + '%'
@@ -159,4 +163,4 @@ print 'Average Pages per Website: ' + str(stats['pagesScraped'] / stats['website
 print 'Total Emails Discovered: ' + str(stats['emails'])
 print 'Total Websites with Emails Discovered: ' + str(stats['websitesWithEmails'])
 print 'Emails Discovery Rate per Website: ' + str(stats['emails'] / stats['websites'] * 100) + '%'
-print 'Overall Email Discovery Rate: ' + str(stats['emails'] / stats['websites'] * 100) + '%'
+print 'Overall Email Discovery Rate: ' + str(stats['emails'] / stats['expectedProfiles'] * 100) + '%'
